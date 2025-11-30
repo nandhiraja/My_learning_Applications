@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capgemini Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ececf0 0%, #edeaf0 100%);
+            min-height: 100vh;
+            padding: 45px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: rgb(255, 253, 253);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #35353a 0%, #2f2b33 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #151616;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #70f149;
+        }
+
+        .stat-label {
+            color: #29e952;
+            font-size: 0.75em;
+            margin-top: 2px;
+        }
+
+        .category-nav {
+            padding: 12px;
+            background: #f5f6f7;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .category-btn {
+            padding: 6px 16px;
+            border: 2px solid #66eaac;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .category-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .quiz-content {
+            padding: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .quiz-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .quiz-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .quiz-content::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .category-section {
+            display: none;
+        }
+
+        .category-section.active {
+            display: block;
+        }
+
+        .category-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .question-card {
+            background: #f0f0f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s;
+        }
+
+        .question-card.answered-correct {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .question-card.answered-wrong {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .question-number {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+
+        .topic-badge {
+            background: white;
+            color: #6c757d;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            border: 1px solid #dee2e6;
+        }
+
+        .question-text {
+            font-size: 0.95em;
+            color: #19191a;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .option-label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.9em;
+            color: #334155;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .option.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .option.wrong {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .feedback {
+            margin-left: auto;
+            font-weight: 700;
+            font-size: 0.85em;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .feedback.correct {
+            color: #10b981;
+            background: #d1fae5;
+        }
+
+        .feedback.wrong {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .submit-section {
+            padding: 15px;
+            background: #f8f9fa;
+            text-align: center;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 10px 30px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            font-size: 3em;
+            font-weight: 900;
+            margin: 15px 0;
+        }
+
+        .score-display.excellent { color: #10b981; }
+        .score-display.good { color: #667eea; }
+        .score-display.average { color: #f59e0b; }
+        .score-display.poor { color: #ef4444; }
+
+        .score-details {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-item-value {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .score-item-label {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 3px;
+        }
+
+        .message {
+            font-size: 1.1em;
+            color: #475569;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.3em; }
+            .stats { flex-wrap: wrap; }
+            .stat-item { flex: 1 1 50%; margin-bottom: 10px; }
+            .category-nav { flex-direction: column; }
+            .category-btn { width: 100%; }
+            .quiz-content { padding: 10px; max-height: 450px; }
+            .question-header { flex-direction: column; align-items: flex-start; gap: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Capgemini Technical Quiz || NR</h1>
+            <!-- <p>Instant feedback on every answer!</p> -->
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalQuestions">150</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="answeredCount">0</div>
+                <div class="stat-label">Answered</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="correctCount">0</div>
+                <div class="stat-label">Correct</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="wrongCount">0</div>
+                <div class="stat-label">Wrong</div>
+            </div>
+        </div>
+
+        <div class="category-nav">
+            <button class="category-btn active" onclick="showCategory('all')">All (150)</button>
+            <button class="category-btn" onclick="showCategory('DSA')">DSA (80)</button>
+            <button class="category-btn" onclick="showCategory('Networking')">Network (30)</button>
+            <button class="category-btn" onclick="showCategory('DBMS')">DBMS (20)</button>
+            <button class="category-btn" onclick="showCategory('Cloud')">Cloud (20)</button>
+        </div>
+
+        <div class="quiz-content" id="quizContent">
+            <!-- Questions loaded by JavaScript -->
+        </div>
+
+        <div class="submit-section">
+            <button class="btn btn-primary" onclick="showResults()"> View Results</button>
+            <button class="btn btn-secondary" onclick="resetQuiz()"> Reset</button>
+        </div>
+    </div>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Quiz Results</h2>
+            <div class="score-display" id="scoreDisplay">0%</div>
+            <div class="score-details">
+                <div class="score-item">
+                    <div class="score-item-value" style="color: #10b981;" id="modalCorrect">0</div>
+                    <div class="score-item-label">Correct</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-item-value" style="color: #ef4444;" id="modalWrong">0</div>
+                    <div class="score-item-label">Wrong</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-item-value" style="color: #94a3b8;" id="modalUnanswered">0</div>
+                    <div class="score-item-label">Unanswered</div>
+                </div>
+            </div>
+            <p class="message" id="resultMessage"></p>
+            <button class="btn btn-primary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+const questionsData =  [{"q_id": 1, "category": "DSA", "topic": "Core Concepts", "text": "Which fundamental data structure operates on the LIFO (Last-In, First-Out) principle?", "options": {"A": "Queue", "B": "Stack", "C": "Linked List", "D": "Array"}, "answer": "B"}, {"q_id": 2, "category": "DSA", "topic": "Core Concepts", "text": "Which characteristic best defines a Hash Table's average-case time complexity for insertion and retrieval?", "options": {"A": "O(n)", "B": "O(log n)", "C": "O(n^2)", "D": "O(1)"}, "answer": "D"}, {"q_id": 3, "category": "DSA", "topic": "Core Concepts", "text": "A **Sparse Matrix** is conventionally represented using which structure(s)? 1. Arrays 2. Linked Lists", "options": {"A": "Only 1", "B": "Only 2", "C": "Both 1 and 2", "D": "Neither 1 nor 2"}, "answer": "C"}, {"q_id": 4, "category": "DSA", "topic": "Core Concepts", "text": "Which data structure is primarily used to implement a recursive function call stack?", "options": {"A": "Queue", "B": "Tree", "C": "Stack", "D": "Heap"}, "answer": "C"}, {"q_id": 5, "category": "DSA", "topic": "Core Concepts", "text": "Which type of Linked List is used to implement both Stack and Queue data structures efficiently?", "options": {"A": "Singly Linked List", "B": "Circular Linked List", "C": "Doubly Linked List", "D": "Header Linked List"}, "answer": "C"}, {"q_id": 6, "category": "DSA", "topic": "Core Concepts", "text": "The memory addresses of the nodes in a Linked List are:", "options": {"A": "Sequential and contiguous", "B": "Non-sequential and contiguous", "C": "Sequential and non-contiguous", "D": "Non-sequential and non-contiguous"}, "answer": "D"}, {"q_id": 7, "category": "DSA", "topic": "Core Concepts", "text": "When comparing arrays and linked lists, which structure allows random access to elements in O(1) time?", "options": {"A": "Linked List", "B": "Array", "C": "Both", "D": "Neither"}, "answer": "B"}, {"q_id": 8, "category": "DSA", "topic": "Core Concepts", "text": "In graph traversal, which algorithm uses a Queue data structure to find the shortest path in an unweighted graph?", "options": {"A": "DFS", "B": "BFS", "C": "Dijkstra's", "D": "Prim's"}, "answer": "B"}, {"q_id": 9, "category": "DSA", "topic": "Core Concepts", "text": "Which property must every node satisfy in a **Max Heap**?", "options": {"A": "Its value is smaller than its parent's value.", "B": "Its value is greater than or equal to its children's values.", "C": "Its value is greater than all nodes in the tree.", "D": "It is sorted in increasing order."}, "answer": "B"}, {"q_id": 10, "category": "DSA", "topic": "Core Concepts", "text": "The worst-case scenario for QuickSort is when the pivot selection leads to partitions that are always:", "options": {"A": "Equal in size", "B": "Almost equal in size", "C": "Highly unbalanced (e.g., one empty)", "D": "Skipped entirely"}, "answer": "C"}, {"q_id": 11, "category": "DSA", "topic": "Calculations", "text": "In an array with N=30 integers, how many comparisons are required to find the maximum and minimum number optimally?", "options": {"A": "28", "B": "43", "C": "36", "D": "45"}, "answer": "B"}, {"q_id": 12, "category": "DSA", "topic": "Calculations", "text": "If integer size is 4 bytes, how many bytes are allocated to `int arr[10]`?", "options": {"A": "20", "B": "32", "C": "40", "D": "10"}, "answer": "C"}, {"q_id": 13, "category": "DSA", "topic": "Calculations", "text": "How many swaps are needed for Bubble Sort (ascending) on: [5, 7, 3, 4, 2, 6, 1]?", "options": {"A": "12", "B": "15", "C": "14", "D": "13"}, "answer": "B"}, {"q_id": 14, "category": "DSA", "topic": "Calculations", "text": "How many swaps are needed for Bubble Sort (ascending) on: [35, 40, 38, 32, 30]?", "options": {"A": "5", "B": "7", "C": "8", "D": "9"}, "answer": "B"}, {"q_id": 15, "category": "DSA", "topic": "Calculations", "text": "What is the time complexity of the Selection Sort algorithm in the worst case?", "options": {"A": "O(n log n)", "B": "O(n)", "C": "O(n^2)", "D": "O(log n)"}, "answer": "C"}, {"q_id": 16, "category": "DSA", "topic": "Calculations", "text": "What is the result of the postfix expression: **10 5 + 6 2 / -**?", "options": {"A": "15", "B": "12", "C": "18", "D": "17"}, "answer": "B"}, {"q_id": 17, "category": "DSA", "topic": "Calculations", "text": "What is the result of the postfix expression: **4 3 1 - 2 * +**?", "options": {"A": "12", "B": "8", "C": "4", "D": "6"}, "answer": "B"}, {"q_id": 18, "category": "DSA", "topic": "Calculations", "text": "What is the time complexity of the Heap Sort algorithm in the average case?", "options": {"A": "O(n)", "B": "O(n^2)", "C": "O(log n)", "D": "O(n log n)"}, "answer": "D"}, {"q_id": 19, "category": "DSA", "topic": "Calculations", "text": "What is the auxiliary space complexity for Merge Sort?", "options": {"A": "O(1)", "B": "O(log n)", "C": "O(n)", "D": "O(n^2)"}, "answer": "C"}, {"q_id": 20, "category": "DSA", "topic": "Calculations", "text": "In Binary Search on an array of 1024 elements, what is the maximum number of comparisons needed?", "options": {"A": "10", "B": "11", "C": "1024", "D": "512"}, "answer": "B"}, {"q_id": 21, "category": "DSA", "topic": "Trees & Graphs", "text": "Which property is mandatory for a tree to be classified as a **Binary Search Tree (BST)**?", "options": {"A": "It must be perfectly balanced.", "B": "Left child key < Root key, Right child key > Root key.", "C": "The root must be the maximum value.", "D": "It must be a complete binary tree."}, "answer": "B"}, {"q_id": 22, "category": "DSA", "topic": "Trees & Graphs", "text": "What is the maximum number of edges possible in a simple undirected graph with V vertices?", "options": {"A": "V^2", "B": "V-1", "C": "V(V-1)/2", "D": "V log V"}, "answer": "C"}, {"q_id": 23, "category": "DSA", "topic": "Trees & Graphs", "text": "A self-balancing search tree where the difference between the heights of left and right subtrees cannot be more than 1 is called a(n):", "options": {"A": "Binary Search Tree", "B": "AVL Tree", "C": "B-Tree", "D": "Trie"}, "answer": "B"}, {"q_id": 24, "category": "DSA", "topic": "Trees & Graphs", "text": "The **Handshaking Lemma** states that the sum of the degrees of all vertices in a graph equals:", "options": {"A": "The number of vertices", "B": "The number of edges", "C": "Twice the number of edges", "D": "Twice the number of vertices"}, "answer": "C"}, {"q_id": 25, "category": "DSA", "topic": "Trees & Graphs", "text": "Which algorithm is used to find the shortest path from a single source vertex to all other vertices in a weighted graph with non-negative edges?", "options": {"A": "Kruskal's", "B": "Prim's", "C": "Bellman-Ford", "D": "Dijkstra's"}, "answer": "D"}, {"q_id": 26, "category": "DSA", "topic": "Trees & Graphs", "text": "The **Preorder Traversal** sequence for a tree (Root: 50, Left: 30, Right: 70) is:", "options": {"A": "30, 70, 50", "B": "50, 30, 70", "C": "30, 50, 70", "D": "70, 30, 50"}, "answer": "B"}, {"q_id": 27, "category": "DSA", "topic": "Trees & Graphs", "text": "The **Inorder Traversal** of a Binary Search Tree (BST) always results in what kind of list?", "options": {"A": "Random", "B": "Reverse Sorted", "C": "Sorted (Ascending)", "D": "Unsorted"}, "answer": "C"}, {"q_id": 28, "category": "DSA", "topic": "Trees & Graphs", "text": "Which algorithm is used to find the **Minimum Spanning Tree (MST)** of a connected, weighted graph?", "options": {"A": "Dijkstra's", "B": "DFS", "C": "Kruskal's or Prim's", "D": "Floyd-Warshall"}, "answer": "C"}, {"q_id": 29, "category": "DSA", "topic": "Trees & Graphs", "text": "For a binary tree represented by an array, the left child of a node at index i is found at index:", "options": {"A": "i+1", "B": "2i", "C": "2i+1", "D": "2i+2"}, "answer": "C"}, {"q_id": 30, "category": "DSA", "topic": "Trees & Graphs", "text": "The total number of edges in a graph with V vertices where every vertex has a degree of 4 is given by:", "options": {"A": "4V", "B": "2V", "C": "V+4", "D": "V(V-1)"}, "answer": "B"}, {"q_id": 31, "category": "DSA", "topic": "Advanced", "text": "Which sorting algorithm is **NOT** a comparison-based sort?", "options": {"A": "Merge Sort", "B": "Quick Sort", "C": "Counting Sort", "D": "Heap Sort"}, "answer": "C"}, {"q_id": 32, "category": "DSA", "topic": "Advanced", "text": "The time complexity of converting an array representation of a binary tree into a Linked List representation is:", "options": {"A": "O(log n)", "B": "O(n)", "C": "O(n^2)", "D": "O(1)"}, "answer": "B"}, {"q_id": 33, "category": "DSA", "topic": "Advanced", "text": "Which algorithmic paradigm is typically used for the shortest path problem in graphs?", "options": {"A": "Dynamic Programming", "B": "Divide and Conquer", "C": "Greedy Approach", "D": "Brute Force"}, "answer": "C"}, {"q_id": 34, "category": "DSA", "topic": "Advanced", "text": "What does O(2^n) represent in complexity analysis?", "options": {"A": "Linear Time", "B": "Polynomial Time", "C": "Logarithmic Time", "D": "Exponential Time"}, "answer": "D"}, {"q_id": 35, "category": "DSA", "topic": "Advanced", "text": "In a V \times V adjacency matrix representation of a graph, the entry M[i][j]=1 means:", "options": {"A": "Vertex i is isolated.", "B": "Vertex j is the root.", "C": "There is an edge from i to j.", "D": "The graph is undirected."}, "answer": "C"}, {"q_id": 36, "category": "DSA", "topic": "Advanced", "text": "The maximum degree of any node in a graph must be less than or equal to:", "options": {"A": "Number of edges (E)", "B": "Number of vertices (V)", "C": "V-1", "D": "E-1"}, "answer": "C"}, {"q_id": 37, "category": "DSA", "topic": "Advanced", "text": "The height of a Binary Search Tree built from N elements inserted in increasing order is:", "options": {"A": "O(log N)", "B": "O(N)", "C": "O(N^2)", "D": "O(1)"}, "answer": "B"}, {"q_id": 38, "category": "DSA", "topic": "Advanced", "text": "Which algorithmic approach is used by Merge Sort and Quick Sort?", "options": {"A": "Greedy", "B": "Dynamic Programming", "C": "Divide and Conquer", "D": "Brute Force"}, "answer": "C"}, {"q_id": 39, "category": "DSA", "topic": "Advanced", "text": "What is the primary drawback of using Quadratic Probing in hashing for collision resolution?", "options": {"A": "High computation time.", "B": "Secondary clustering.", "C": "No guaranteed slot finding.", "D": "Primary clustering."}, "answer": "B"}, {"q_id": 40, "category": "DSA", "topic": "Advanced", "text": "Which technique is generally faster for searching in a large sorted array?", "options": {"A": "Linear Search", "B": "Binary Search", "C": "Interpolation Search", "D": "Exponential Search"}, "answer": "B"}, {"q_id": 41, "category": "DSA", "topic": "Traversal", "text": "Given a tree with Preorder: [10, 5, 1, 7, 40, 50] and Inorder: [1, 5, 7, 10, 40, 50]. What is the root?", "options": {"A": "1", "B": "5", "C": "10", "D": "40"}, "answer": "C"}, {"q_id": 42, "category": "DSA", "topic": "Traversal", "text": "Which traversal method visits the root after visiting both the left and right subtrees?", "options": {"A": "Inorder", "B": "Preorder", "C": "Postorder", "D": "Level Order"}, "answer": "C"}, {"q_id": 43, "category": "DSA", "topic": "Traversal", "text": "What is the Postorder Traversal for a simple tree: Root (R), Left (L), Right (X)?", "options": {"A": "R, L, X", "B": "L, R, X", "C": "L, X, R", "D": "X, L, R"}, "answer": "C"}, {"q_id": 44, "category": "DSA", "topic": "Traversal", "text": "In graph algorithms, what is the core data structure used to implement DFS (Depth-First Search)?", "options": {"A": "Queue", "B": "Hash Table", "C": "Stack", "D": "Min-Heap"}, "answer": "C"}, {"q_id": 45, "category": "DSA", "topic": "Traversal", "text": "The complexity of DFS and BFS on a graph represented by an Adjacency Matrix (V vertices, E edges) is:", "options": {"A": "O(V+E)", "B": "O(V^2)", "C": "O(E)", "D": "O(log V)"}, "answer": "B"}, {"q_id": 46, "category": "DSA", "topic": "Core", "text": "In a Circular Linked List, the condition for an empty list is when:", "options": {"A": "Head is NULL", "B": "Tail points to NULL", "C": "Tail points to Head", "D": "The list has only one node"}, "answer": "C"}, {"q_id": 47, "category": "DSA", "topic": "Core", "text": "Which is the standard operation to add an element to a Stack?", "options": {"A": "Enqueue", "B": "Push", "C": "Pop", "D": "Insert"}, "answer": "B"}, {"q_id": 48, "category": "DSA", "topic": "Core", "text": "The average search time in a balanced Binary Search Tree (like AVL) is:", "options": {"A": "O(n)", "B": "O(n^2)", "C": "O(log n)", "D": "O(1)"}, "answer": "C"}, {"q_id": 49, "category": "DSA", "topic": "Core", "text": "Which data structure is typically best suited for implementing a priority queue?", "options": {"A": "Stack", "B": "Queue", "C": "Heap", "D": "Array"}, "answer": "C"}, {"q_id": 50, "category": "DSA", "topic": "Core", "text": "What is the time complexity to insert an element into the middle of a Singly Linked List?", "options": {"A": "O(1)", "B": "O(log n)", "C": "O(n)", "D": "O(n^2)"}, "answer": "C"}, {"q_id": 51, "category": "DSA", "topic": "Calculations", "text": "An undirected graph has 6 vertices and 6 edges. How many zeros are there in its 6 \times 6 adjacency matrix?", "options": {"A": "24", "B": "20", "C": "12", "D": "30"}, "answer": "A"}, {"q_id": 52, "category": "DSA", "topic": "Calculations", "text": "A full Binary Tree of height 4 (with root at level 0) has how many nodes?", "options": {"A": "16", "B": "15", "C": "31", "D": "32"}, "answer": "C"}, {"q_id": 53, "category": "DSA", "topic": "Calculations", "text": "The average-case time complexity for searching in a hash table with linear probing and a load factor alpha is:", "options": {"A": "O(1/(1-alpha))", "B": "O(alpha)", "C": "O(1)", "D": "O(log n)"}, "answer": "A"}, {"q_id": 54, "category": "DSA", "topic": "Calculations", "text": "How many comparisons does Insertion Sort perform in the best case (array is already sorted)?", "options": {"A": "O(n^2)", "B": "O(n log n)", "C": "O(n)", "D": "O(1)"}, "answer": "C"}, {"q_id": 55, "category": "DSA", "topic": "Calculations", "text": "What is the result of the prefix expression: **+ * 2 3 - 5 1**?", "options": {"A": "10", "B": "2", "C": "6", "D": "4"}, "answer": "A"}, {"q_id": 56, "category": "DSA", "topic": "Calculations", "text": "What is the maximum number of nodes in a binary tree of depth k (where root is depth 0)?", "options": {"A": "2^{k+1}", "B": "2^{k+1}-1", "C": "2^k", "D": "2^k+1"}, "answer": "B"}, {"q_id": 57, "category": "DSA", "topic": "Algorithms", "text": "Which property must be true for a Greedy algorithm to find the optimal solution?", "options": {"A": "Optimal Substructure and Overlapping Subproblems.", "B": "Optimal Substructure and Greedy Choice Property.", "C": "It must use recursion.", "D": "It must avoid cycles."}, "answer": "B"}, {"q_id": 58, "category": "DSA", "topic": "Algorithms", "text": "The Floyd-Warshall algorithm is used to solve which problem?", "options": {"A": "Single-Source Shortest Path.", "B": "Minimum Spanning Tree.", "C": "All-Pairs Shortest Path.", "D": "Topological Sort."}, "answer": "C"}, {"q_id": 59, "category": "DSA", "topic": "Algorithms", "text": "In Dynamic Programming, the optimal solution for a larger problem is built from:", "options": {"A": "Random guesses.", "B": "Greedy choices.", "C": "Optimal solutions to subproblems.", "D": "Linear equations."}, "answer": "C"}, {"q_id": 60, "category": "DSA", "topic": "Algorithms", "text": "Which algorithm is suitable for finding the shortest path in a graph containing negative edge weights?", "options": {"A": "Dijkstra's", "B": "Prim's", "C": "Bellman-Ford", "D": "Kruskal's"}, "answer": "C"}, {"q_id": 61, "category": "DSA", "topic": "Algorithms", "text": "Topological Sort can be applied to which type of graph?", "options": {"A": "Undirected Graph", "B": "Weighted Graph", "C": "Directed Acyclic Graph (DAG)", "D": "Complete Graph"}, "answer": "C"}, {"q_id": 62, "category": "DSA", "topic": "Algorithms", "text": "Which complexity class describes problems that can be solved in polynomial time (e.g., O(n^k))?", "options": {"A": "NP-complete", "B": "P", "C": "NP-hard", "D": "Exponential"}, "answer": "B"}, {"q_id": 63, "category": "DSA", "topic": "Algorithms", "text": "Backtracking is often used to solve which type of problems?", "options": {"A": "Optimization Problems", "B": "Decision Problems", "C": "Constraint Satisfaction Problems", "D": "Graph Traversal"}, "answer": "C"}, {"q_id": 64, "category": "DSA", "topic": "Algorithms", "text": "What is the time complexity of building a Max Heap from an arbitrary array of N elements?", "options": {"A": "O(N log N)", "B": "O(N^2)", "C": "O(N)", "D": "O(1)"}, "answer": "C"}, {"q_id": 65, "category": "DSA", "topic": "Algorithms", "text": "In a BST, finding the element immediately greater than a given node is called finding its:", "options": {"A": "Predecessor", "B": "Ancestor", "C": "Successor", "D": "Parent"}, "answer": "C"}, {"q_id": 66, "category": "DSA", "topic": "Trees & Graphs", "text": "The minimum number of nodes in an AVL tree of height h (denoted N(h)) follows which recurrence relation?", "options": {"A": "N(h) = N(h-1) + 1", "B": "N(h) = N(h-1) + N(h-2) + 1", "C": "N(h) = 2N(h-1) + 1", "D": "N(h) = N(h+1) - 1"}, "answer": "B"}, {"q_id": 67, "category": "DSA", "topic": "Trees & Graphs", "text": "Which of the following is an example of an NP-complete problem?", "options": {"A": "Sorting an array", "B": "Finding the Minimum Spanning Tree", "C": "The Traveling Salesman Problem (TSP) Decision Version", "D": "Binary Search"}, "answer": "C"}, {"q_id": 68, "category": "DSA", "topic": "Trees & Graphs", "text": "How many leaf nodes are in a **full** binary tree of height h (root at level 0)?", "options": {"A": "2^h", "B": "2^{h+1}-1", "C": "h", "D": "2^h-1"}, "answer": "A"}, {"q_id": 69, "category": "DSA", "topic": "Trees & Graphs", "text": "What is the key idea behind **Trie** (Prefix Tree) data structure?", "options": {"A": "Storing key-value pairs using hashing.", "B": "Storing keys hierarchically based on common prefixes.", "C": "Fastest retrieval using balanced nodes.", "D": "Representing graph adjacencies."}, "answer": "B"}, {"q_id": 70, "category": "DSA", "topic": "Trees & Graphs", "text": "In a weighted graph, Kruskal's algorithm uses a greedy approach and which data structure to manage connected components?", "options": {"A": "Min-Heap", "B": "Adjacency List", "C": "Disjoint Set Union (DSU)", "D": "Queue"}, "answer": "C"}, {"q_id": 71, "category": "DSA", "topic": "Algorithms", "text": "Which sorting algorithm is **stable** and runs in O(N^2) time?", "options": {"A": "Quick Sort", "B": "Insertion Sort", "C": "Heap Sort", "D": "Selection Sort"}, "answer": "B"}, {"q_id": 72, "category": "DSA", "topic": "Algorithms", "text": "A key difference between Dynamic Programming and Divide and Conquer is that DP handles:", "options": {"A": "Non-overlapping subproblems.", "B": "Optimal substructure.", "C": "Overlapping subproblems.", "D": "Greedy choices."}, "answer": "C"}, {"q_id": 73, "category": "DSA", "topic": "Algorithms", "text": "The total number of edges in a graph where V=10 and all vertices have a degree of 4 is:", "options": {"A": "20", "B": "40", "C": "14", "D": "4"}, "answer": "A"}, {"q_id": 74, "category": "DSA", "topic": "Algorithms", "text": "The worst-case time complexity of adding a new element to a dynamic array (like Python list or C++ vector) is:", "options": {"A": "O(1)", "B": "O(n)", "C": "O(log n)", "D": "O(n^2)"}, "answer": "B"}, {"q_id": 75, "category": "DSA", "topic": "Algorithms", "text": "Which is the most appropriate way to resolve collisions in a hash table when the load factor is too high?", "options": {"A": "Rehashing (creating a larger table).", "B": "Switching to Quadratic Probing.", "C": "Switching to Linear Probing.", "D": "Using a fixed table size."}, "answer": "A"}, {"q_id": 76, "category": "DSA", "topic": "Algorithms", "text": "Which data structure is suitable for implementing an Undo/Redo mechanism in a software application?", "options": {"A": "Queue", "B": "Array", "C": "Stack", "D": "Priority Queue"}, "answer": "C"}, {"q_id": 77, "category": "DSA", "topic": "Algorithms", "text": "Which graph representation is generally more memory efficient for sparse graphs?", "options": {"A": "Adjacency Matrix", "B": "Incidence Matrix", "C": "Adjacency List", "D": "Edge Matrix"}, "answer": "C"}, {"q_id": 78, "category": "DSA", "topic": "Algorithms", "text": "An **Abstract Data Type (ADT)** is defined by its:", "options": {"A": "Implementation details (e.g., arrays or links).", "B": "Set of values and the operations that can be performed on them.", "C": "Memory allocation strategy.", "D": "Specific programming language used."}, "answer": "B"}, {"q_id": 79, "category": "DSA", "topic": "Algorithms", "text": "A graph with V vertices must have at least how many edges to be considered connected?", "options": {"A": "V", "B": "V-1", "C": "V(V-1)/2", "D": "V^2"}, "answer": "B"}, {"q_id": 80, "category": "DSA", "topic": "Algorithms", "text": "In a B-Tree, what is the significance of the **minimum degree (t)**?", "options": {"A": "Maximum number of nodes per level.", "B": "Minimum number of children a non-root internal node can have.", "C": "Maximum number of keys in the root.", "D": "Height of the tree."}, "answer": "B"}, {"q_id": 81, "category": "Networking", "topic": "OSI/Devices", "text": "Which OSI layer is responsible for translating data formats, compression, and encryption?", "options": {"A": "Application", "B": "Presentation", "C": "Session", "D": "Transport"}, "answer": "B"}, {"q_id": 82, "category": "Networking", "topic": "OSI/Devices", "text": "**Framing** and **Error Control** are primary functions of which OSI layer?", "options": {"A": "Physical Layer", "B": "Data Link Layer", "C": "Network Layer", "D": "Transport Layer"}, "answer": "B"}, {"q_id": 83, "category": "Networking", "topic": "OSI/Devices", "text": "Which network device operates only at the Physical Layer (Layer 1) and simply amplifies signals?", "options": {"A": "Switch", "B": "Router", "C": "Repeater", "D": "Bridge"}, "answer": "C"}, {"q_id": 84, "category": "Networking", "topic": "OSI/Devices", "text": "A **Router** operates primarily at which OSI layer?", "options": {"A": "Data Link Layer", "B": "Network Layer", "C": "Transport Layer", "D": "Application Layer"}, "answer": "B"}, {"q_id": 85, "category": "Networking", "topic": "OSI/Devices", "text": "The Physical Layer is responsible for: 1. Defining data flow 2. Specifies physical topologies 3. Defines the transmission rate", "options": {"A": "1 only", "B": "2 and 3 only", "C": "1, 2, and 3", "D": "1 and 2 only"}, "answer": "C"}, {"q_id": 86, "category": "Networking", "topic": "OSI/Devices", "text": "Which device learns MAC addresses and forwards data frames based on the MAC Address Table?", "options": {"A": "Hub", "B": "Router", "C": "Switch", "D": "Gateway"}, "answer": "C"}, {"q_id": 87, "category": "Networking", "topic": "OSI/Devices", "text": "Which layer is responsible for breaking up user data into segments and ensuring end-to-end delivery?", "options": {"A": "Network Layer", "B": "Session Layer", "C": "Transport Layer", "D": "Presentation Layer"}, "answer": "C"}, {"q_id": 88, "category": "Networking", "topic": "OSI/Devices", "text": "The TCP/IP model combines the Session, Presentation, and Application layers of the OSI model into a single:", "options": {"A": "Transport Layer", "B": "Internet Layer", "C": "Application Layer", "D": "Network Access Layer"}, "answer": "C"}, {"q_id": 89, "category": "Networking", "topic": "OSI/Devices", "text": "A **Modem** converts between which two signal types?", "options": {"A": "Analog to Digital only", "B": "Digital to Analog only", "C": "Digital to Analog and Analog to Digital", "D": "Baseband to Broadband"}, "answer": "C"}, {"q_id": 90, "category": "Networking", "topic": "OSI/Devices", "text": "Which network device is capable of converting UTP cable segments to Fiber Optic cable segments?", "options": {"A": "Router", "B": "Bridge (Translating)", "C": "Hub", "D": "Repeater"}, "answer": "B"}, {"q_id": 91, "category": "Networking", "topic": "IP/Subnetting", "text": "Which IP address class is reserved for multicasting purposes?", "options": {"A": "Class C", "B": "Class D", "C": "Class E", "D": "Class B"}, "answer": "B"}, {"q_id": 92, "category": "Networking", "topic": "IP/Subnetting", "text": "In a Class C network, which portion of the IP address is reserved for the Host ID?", "options": {"A": "First Octet", "B": "First three Octets", "C": "Last Octet", "D": "Last two Octets"}, "answer": "C"}, {"q_id": 93, "category": "Networking", "topic": "IP/Subnetting", "text": "What is the maximum number of usable hosts per subnet when using the mask 255.255.255.224 (CIDR /27)?", "options": {"A": "30", "B": "32", "C": "62", "D": "14"}, "answer": "A"}, {"q_id": 94, "category": "Networking", "topic": "IP/Subnetting", "text": "The concept of using private addresses within a network and translating them to a public address for Internet access is called:", "options": {"A": "ARP", "B": "DHCP", "C": "NAT", "D": "ICMP"}, "answer": "C"}, {"q_id": 95, "category": "Networking", "topic": "IP/Subnetting", "text": "An IP address where all bits of the **Host ID** are set to 1 is reserved for:", "options": {"A": "Network Address", "B": "Unicast Address", "C": "Broadcast Address", "D": "Loopback Address"}, "answer": "C"}, {"q_id": 96, "category": "Networking", "topic": "IP/Subnetting", "text": "What is the Subnet Mask for a Class B address using CIDR notation /20?", "options": {"A": "255.255.0.0", "B": "255.255.240.0", "C": "255.255.255.0", "D": "255.240.0.0"}, "answer": "B"}, {"q_id": 97, "category": "Networking", "topic": "IP/Subnetting", "text": "In a Class C network, find the maximum number of subnets for the mask **255.255.255.248**.", "options": {"A": "16", "B": "32", "C": "28", "D": "64"}, "answer": "B"}, {"q_id": 98, "category": "Networking", "topic": "IP/Subnetting", "text": "Which is the standard default port for HTTPS traffic?", "options": {"A": "21", "B": "80", "C": "443", "D": "23"}, "answer": "C"}, {"q_id": 99, "category": "Networking", "topic": "IP/Subnetting", "text": "Which protocol works at the Data Link Layer and resolves an IP address to a MAC address?", "options": {"A": "DHCP", "B": "ARP", "C": "RARP", "D": "ICMP"}, "answer": "B"}, {"q_id": 100, "category": "Networking", "topic": "IP/Subnetting", "text": "Which of the following is an example of a **Private IP Address** range?", "options": {"A": "1.0.0.0 - 1.255.255.255", "B": "192.168.0.0 - 192.168.255.255", "C": "172.0.0.0 - 172.31.255.255", "D": "224.0.0.0 - 239.255.255.255"}, "answer": "B"}, {"q_id": 101, "category": "Networking", "topic": "Security/Concepts", "text": "Which substitution cipher uses a polyalphabetic scheme (multiple shift ciphers) to improve security?", "options": {"A": "Caesar cipher", "B": "Playfair cipher", "C": "Vigenere cipher", "D": "Hill cipher"}, "answer": "C"}, {"q_id": 102, "category": "Networking", "topic": "Security/Concepts", "text": "Which of the following transport layer protocols is connectionless and prioritizes speed over guaranteed delivery?", "options": {"A": "TCP", "B": "HTTP", "C": "UDP", "D": "FTP"}, "answer": "C"}, {"q_id": 103, "category": "Networking", "topic": "Security/Concepts", "text": "Which type of network topology is generally the most expensive but offers the highest redundancy (all nodes connected to all others)?", "options": {"A": "Bus", "B": "Star", "C": "Ring", "D": "Mesh"}, "answer": "D"}, {"q_id": 104, "category": "Networking", "topic": "Security/Concepts", "text": "Remote bridges are primarily used to connect local area networks (LANs) over what type of connection?", "options": {"A": "Wireless LANs", "B": "Metropolitan Area Networks (MANs)", "C": "Wide Area Networks (WANs)", "D": "Personal Area Networks (PANs)"}, "answer": "C"}, {"q_id": 105, "category": "Networking", "topic": "Security/Concepts", "text": "What does the term **'Man-in-the-Middle (MITM)'** attack describe?", "options": {"A": "Unauthorized access to a server.", "B": "Intercepting communication between two parties secretly.", "C": "Flooding a network with excessive traffic.", "D": "Changing DNS records to redirect users."}, "answer": "B"}, {"q_id": 106, "category": "Networking", "topic": "Security/Concepts", "text": "Which encryption type uses a single, shared key for both encryption and decryption?", "options": {"A": "Asymmetric (Public Key)", "B": "Symmetric (Private Key)", "C": "Hashing", "D": "Digital Signature"}, "answer": "B"}, {"q_id": 107, "category": "Networking", "topic": "Security/Concepts", "text": "The approach that separates the network control plane from the forwarding plane is called:", "options": {"A": "MPLS", "B": "QoS", "C": "Software-Defined Networking (SDN)", "D": "NAT"}, "answer": "C"}, {"q_id": 108, "category": "Networking", "topic": "Security/Concepts", "text": "Which of the following is a key advantage of IPv6 over IPv4?", "options": {"A": "Simpler Packet Header", "B": "Smaller Address Space", "C": "Built-in IPSec security features", "D": "Uses ARP for address resolution"}, "answer": "C"}, {"q_id": 109, "category": "Networking", "topic": "Security/Concepts", "text": "Which component is necessary to establish a secure, encrypted tunnel over an unsecured network?", "options": {"A": "FTP", "B": "VPN", "C": "ICMP", "D": "DHCP"}, "answer": "B"}, {"q_id": 110, "category": "Networking", "topic": "Security/Concepts", "text": "The process of verifying the identity of a user, device, or system before granting access is known as:", "options": {"A": "Authorization", "B": "Authentication", "C": "Accounting", "D": "Auditing"}, "answer": "B"}, {"q_id": 111, "category": "DBMS", "topic": "Core/Transactions", "text": "A single unit of work which consists of various operations is known as a:", "options": {"A": "Schedule", "B": "Constraint", "C": "Transaction", "D": "Query"}, "answer": "C"}, {"q_id": 112, "category": "DBMS", "topic": "Core/Transactions", "text": "The 'C' in ACID properties of transactions stands for:", "options": {"A": "Concurrency", "B": "Consistency", "C": "Control", "D": "Commitment"}, "answer": "B"}, {"q_id": 113, "category": "DBMS", "topic": "Core/Transactions", "text": "What is the initial state of a database transaction?", "options": {"A": "Committed", "B": "Active", "C": "Failed", "D": "Aborted"}, "answer": "B"}, {"q_id": 114, "category": "DBMS", "topic": "Core/Transactions", "text": "The condition of a set of transactions holding locks on resources that another transaction needs, resulting in perpetual waiting, is called:", "options": {"A": "Starvation", "B": "Deadlock", "C": "Exclusion", "D": "Preemption"}, "answer": "B"}, {"q_id": 115, "category": "DBMS", "topic": "Core/Transactions", "text": "Which type of join returns only the matching rows between two tables?", "options": {"A": "Full Join", "B": "Left Join", "C": "Inner Join", "D": "Cross Join"}, "answer": "C"}, {"q_id": 116, "category": "DBMS", "topic": "Core/Transactions", "text": "A **Relation Schema** specifies the relation's name, its attributes, and the domains of those attributes, making it:", "options": {"A": "The current state of the database.", "B": "The structure of the table.", "C": "A single row of data.", "D": "The storage location."}, "answer": "B"}, {"q_id": 117, "category": "DBMS", "topic": "Core/Transactions", "text": "The component that stores metadata, schema definitions, and integrity constraints is the:", "options": {"A": "Query Processor", "B": "Buffer Manager", "C": "Data Dictionary", "D": "Data Store"}, "answer": "C"}, {"q_id": 118, "category": "DBMS", "topic": "Core/Transactions", "text": "In the functional dependency A \rightarrow B, the attribute A is known as the:", "options": {"A": "Dependent", "B": "Determinar", "C": "Candidate", "D": "Target"}, "answer": "B"}, {"q_id": 119, "category": "DBMS", "topic": "Core/Transactions", "text": "Which of the following is **NOT** a property of a **Candidate Key**?", "options": {"A": "Uniqueness (no two rows have same value).", "B": "Irreducibility (minimal set of attributes).", "C": "Its values can be NULL.", "D": "Can be any set of attributes that uniquely identifies a row."}, "answer": "C"}, {"q_id": 120, "category": "DBMS", "topic": "Core/Transactions", "text": "Which type of key is chosen by the database designer to uniquely identify each row in a relation?", "options": {"A": "Foreign Key", "B": "Candidate Key", "C": "Primary Key", "D": "Super Key"}, "answer": "C"}, {"q_id": 121, "category": "DBMS", "topic": "Normalization", "text": "A relation is in **1NF** if it contains no:", "options": {"A": "Partial dependency", "B": "Transitive dependency", "C": "Multi-valued or composite attributes", "D": "Non-prime attributes"}, "answer": "C"}, {"q_id": 122, "category": "DBMS", "topic": "Normalization", "text": "A relation is in **2NF** if it is in 1NF and contains no:", "options": {"A": "Partial dependency", "B": "Transitive dependency", "C": "Functional dependency", "D": "Redundant data"}, "answer": "A"}, {"q_id": 123, "category": "DBMS", "topic": "Normalization", "text": "The condition checked to determine if a relation is in **BCNF** is: For every non-trivial functional dependency X \rightarrow Y, X must be a:", "options": {"A": "Candidate Key", "B": "Primary Key", "C": "Super Key", "D": "Foreign Key"}, "answer": "C"}, {"q_id": 124, "category": "DBMS", "topic": "Normalization", "text": "A functional dependency A \rightarrow C existing because A \rightarrow B and B \rightarrow C is an example of:", "options": {"A": "Partial Dependency", "B": "Transitive Dependency", "C": "Trivial Dependency", "D": "Full Functional Dependency"}, "answer": "B"}, {"q_id": 125, "category": "DBMS", "topic": "Normalization", "text": "The highest Normal Form among 1NF, 2NF, 3NF, and BCNF is generally considered:", "options": {"A": "1NF", "B": "2NF", "C": "3NF", "D": "BCNF"}, "answer": "D"}, {"q_id": 126, "category": "DBMS", "topic": "ER Model", "text": "How many tables are required to represent an ER diagram having a binary relationship with cardinality ratio **1:N**?", "options": {"A": "1 table", "B": "2 tables", "C": "3 tables", "D": "4 tables"}, "answer": "B"}, {"q_id": 127, "category": "DBMS", "topic": "ER Model", "text": "Which symbol represents an **Entity** in an ER diagram?", "options": {"A": "Diamond", "B": "Rectangle", "C": "Oval", "D": "Line"}, "answer": "B"}, {"q_id": 128, "category": "DBMS", "topic": "ER Model", "text": "The concept that relates two or more entities to each other is called a:", "options": {"A": "Attribute", "B": "Constraint", "C": "Relationship", "D": "Tuple"}, "answer": "C"}, {"q_id": 129, "category": "DBMS", "topic": "ER Model", "text": "In a 1:1 relationship, where should the Foreign Key typically be placed to minimize null values?", "options": {"A": "In both tables.", "B": "In neither table.", "C": "In the table whose PK is not optional (or both ways are fine).", "D": "In the table on the '1' side."}, "answer": "C"}, {"q_id": 130, "category": "DBMS", "topic": "ER Model", "text": "Which cardinality ratio requires the creation of a separate junction/linking table to resolve in a relational model?", "options": {"A": "1:1", "B": "1:N", "C": "N:1", "D": "M:N"}, "answer": "D"}, {"q_id": 131, "category": "Cloud", "topic": "Core", "text": "Which type of virtualization allows a user to access their desktop environment virtually from any remote device?", "options": {"A": "Application Virtualization", "B": "Desktop Virtualization (VDI)", "C": "Network Virtualization", "D": "Server Virtualization"}, "answer": "B"}, {"q_id": 132, "category": "Cloud", "topic": "Core", "text": "The ability to scale resources up or down automatically based on demand is primarily covered by which cloud characteristic?", "options": {"A": "Measured Service", "B": "Broad Network Access", "C": "Rapid Elasticity", "D": "Resource Pooling"}, "answer": "C"}, {"q_id": 133, "category": "Cloud", "topic": "Core", "text": "Which cloud model uses a blend of on-premises infrastructure and off-premises public cloud services?", "options": {"A": "Public Cloud", "B": "Private Cloud", "C": "Community Cloud", "D": "Hybrid Cloud"}, "answer": "D"}, {"q_id": 134, "category": "Cloud", "topic": "Core", "text": "Which component allows multiple isolated operating systems (VMs) to run concurrently on a single physical host machine?", "options": {"A": "Load Balancer", "B": "Hypervisor", "C": "Container Runtime", "D": "VPC"}, "answer": "B"}, {"q_id": 135, "category": "Cloud", "topic": "Core", "text": "Which service model gives the user the most control over the operating system, middleware, and application stack?", "options": {"A": "SaaS", "B": "PaaS", "C": "IaaS", "D": "FaaS"}, "answer": "C"}, {"q_id": 136, "category": "Cloud", "topic": "Core", "text": "The principle that resources are shared among multiple tenants is known as:", "options": {"A": "Multitenancy", "B": "Isolation", "C": "Hypervision", "D": "Virtualization"}, "answer": "A"}, {"q_id": 137, "category": "Cloud", "topic": "Core", "text": "What is the primary benefit of **polyglot PaaS**?", "options": {"A": "Cost reduction for storage.", "B": "Support for multiple programming languages and development environments.", "C": "Mandatory usage of proprietary APIs.", "D": "Automatic network configuration."}, "answer": "B"}, {"q_id": 138, "category": "Cloud", "topic": "Core", "text": "Which of the following cloud models is generally considered the most cost-effective for generic, non-sensitive public-facing applications?", "options": {"A": "Public Cloud", "B": "Private Cloud", "C": "Hybrid Cloud", "D": "Edge Computing"}, "answer": "A"}, {"q_id": 139, "category": "Cloud", "topic": "Core", "text": "Which type of virtualization is considered the foundation of **containerization** (like Docker and Kubernetes)?", "options": {"A": "Hardware Virtualization", "B": "Operating System Virtualization", "C": "Storage Virtualization", "D": "CPU Virtualization"}, "answer": "B"}, {"q_id": 140, "category": "Cloud", "topic": "Core", "text": "The total count of Google App Engine applications allowed per single Google Cloud Project is:", "options": {"A": "Unlimited", "B": "1", "C": "10", "D": "5"}, "answer": "B"}, {"q_id": 141, "category": "Cloud", "topic": "AWS/GCP", "text": "Which AWS IAM best practice emphasizes the principle of least privilege in policy attachment?", "options": {"A": "Using only the root account.", "B": "Attaching policies to Groups instead of individual users.", "C": "Granting *:* permission.", "D": "Using hardcoded access keys."}, "answer": "B"}, {"q_id": 142, "category": "Cloud", "topic": "AWS/GCP", "text": "Which AWS service is categorized as a serverless, event-driven compute platform?", "options": {"A": "EC2", "B": "RDS", "C": "Lambda", "D": "S3"}, "answer": "C"}, {"q_id": 143, "category": "Cloud", "topic": "AWS/GCP", "text": "In GCP, a Static External IP address can be switched between VM instances in the same region of the same project. This statement is:", "options": {"A": "True", "B": "False", "C": "Only true for internal IPs", "D": "Only true for global IPs"}, "answer": "A"}, {"q_id": 144, "category": "Cloud", "topic": "AWS/GCP", "text": "Which AWS service acts as a Content Delivery Network (CDN) to distribute content globally?", "options": {"A": "S3", "B": "CloudFormation", "C": "CloudFront", "D": "VPC"}, "answer": "C"}, {"q_id": 145, "category": "Cloud", "topic": "AWS/GCP", "text": "The primary role of **Amazon Lightsail** is to simplify the deployment and management of:", "options": {"A": "Managed Databases", "B": "Content Delivery Networks", "C": "Virtual Private Servers (VPS)", "D": "Serverless Functions"}, "answer": "C"}, {"q_id": 146, "category": "Cloud", "topic": "AWS/GCP", "text": "In AWS S3, the concept of storing frequently accessed data in a fast, expensive storage class and moving it to a slower, cheaper class over time is called:", "options": {"A": "Lifecycle Management", "B": "Data Replication", "C": "Glacier Archiving", "D": "S3 Transfer"}, "answer": "A"}, {"q_id": 147, "category": "Cloud", "topic": "AWS/GCP", "text": "Which Google Cloud component is equivalent to a logical container for your compute, storage, and networking resources?", "options": {"A": "Region", "B": "Zone", "C": "Project", "D": "VPC"}, "answer": "C"}, {"q_id": 148, "category": "Cloud", "topic": "AWS/GCP", "text": "Which AWS storage service is designed for archival data with retrieval times of several hours and extremely low costs?", "options": {"A": "S3 Standard", "B": "EBS Volume", "C": "S3 Glacier", "D": "EFS"}, "answer": "C"}, {"q_id": 149, "category": "Cloud", "topic": "AWS/GCP", "text": "In Kubernetes, a **Pod** represents:", "options": {"A": "A single physical machine.", "B": "The smallest deployable unit containing one or more containers.", "C": "A network security group.", "D": "A dedicated storage volume."}, "answer": "B"}, {"q_id": 150, "category": "Cloud", "topic": "AWS/GCP", "text": "Which cloud service provides a managed Relational Database Service (RDBMS) (e.g., MySQL, PostgreSQL)?", "options": {"A": "AWS EC2", "B": "AWS S3", "C": "AWS RDS / GCP Cloud SQL", "D": "AWS Lambda"}, "answer": "C"}];
+        let userAnswers = {};
+        let stats = { correct: 0, wrong: 0, answered: 0 };
+
+        function initQuiz() {
+            renderQuestions('all');
+        }
+
+        function renderQuestions(category) {
+            const content = document.getElementById('quizContent');
+            content.innerHTML = '';
+
+            const filtered = category === 'all' 
+                ? questionsData 
+                : questionsData.filter(q => q.category === category);
+
+            const title = document.createElement('h2');
+            title.className = 'category-title';
+            title.textContent = getCategoryTitle(category);
+            content.appendChild(title);
+
+            filtered.forEach(q => {
+                content.appendChild(createQuestionCard(q));
+            });
+        }
+
+        function createQuestionCard(q) {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.id = `q-${q.q_id}`;
+
+            card.innerHTML = `
+                <div class="question-header">
+                    <span class="question-number">Q ${q.q_id}</span>
+                    <span class="topic-badge">${q.topic}</span>
+                </div>
+                <div class="question-text">${q.text}</div>
+                <div class="options" id="options-${q.q_id}">
+                    ${Object.keys(q.options).map(opt => `
+                        <label class="option" id="opt-${q.q_id}-${opt}">
+                            <input type="radio" name="q${q.q_id}" value="${opt}" 
+                                onchange="handleAnswer(${q.q_id}, '${opt}', '${q.answer}')">
+                            <span class="option-label"><strong>${opt}.</strong> ${q.options[opt]}</span>
+                            <span class="feedback" id="feedback-${q.q_id}-${opt}"></span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function handleAnswer(qId, selected, correct) {
+            // Check if already answered
+            if (userAnswers[qId]) {
+                return;
+            }
+
+            userAnswers[qId] = selected;
+            const isCorrect = selected === correct;
+
+            // Update stats
+            stats.answered++;
+            if (isCorrect) {
+                stats.correct++;
+            } else {
+                stats.wrong++;
+            }
+
+            // Update card styling
+            const card = document.getElementById(`q-${qId}`);
+            card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+            // Disable all options for this question
+            const options = document.querySelectorAll(`input[name="q${qId}"]`);
+            options.forEach(opt => {
+                opt.disabled = true;
+                opt.closest('.option').classList.add('disabled');
+            });
+
+            // Show feedback on selected option
+            const selectedOpt = document.getElementById(`opt-${qId}-${selected}`);
+            const selectedFeedback = document.getElementById(`feedback-${qId}-${selected}`);
+
+            if (isCorrect) {
+                selectedOpt.classList.add('correct');
+                selectedFeedback.textContent = '✓ Correct';
+                selectedFeedback.className = 'feedback correct';
+            } else {
+                selectedOpt.classList.add('wrong');
+                selectedFeedback.textContent = '✗ Wrong';
+                selectedFeedback.className = 'feedback wrong';
+
+                // Show correct answer
+                const correctOpt = document.getElementById(`opt-${qId}-${correct}`);
+                const correctFeedback = document.getElementById(`feedback-${qId}-${correct}`);
+                correctOpt.classList.add('correct');
+                correctFeedback.textContent = '✓ Correct';
+                correctFeedback.className = 'feedback correct';
+            }
+
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('answeredCount').textContent = stats.answered;
+            document.getElementById('correctCount').textContent = stats.correct;
+            document.getElementById('wrongCount').textContent = stats.wrong;
+        }
+
+        function showCategory(category) {
+            renderQuestions(category);
+
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function showResults() {
+            const unanswered = questionsData.length - stats.answered;
+            const percentage = stats.answered > 0 
+                ? Math.round((stats.correct / questionsData.length) * 100) 
+                : 0;
+
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            scoreDisplay.textContent = percentage + '%';
+
+            if (percentage >= 90) {
+                scoreDisplay.className = 'score-display excellent';
+                document.getElementById('resultMessage').textContent = '🎉 Outstanding! Excellent preparation!';
+            } else if (percentage >= 75) {
+                scoreDisplay.className = 'score-display good';
+                document.getElementById('resultMessage').textContent = '👏 Great job! Keep it up!';
+            } else if (percentage >= 50) {
+                scoreDisplay.className = 'score-display average';
+                document.getElementById('resultMessage').textContent = '👍 Good effort! Review and improve!';
+            } else {
+                scoreDisplay.className = 'score-display poor';
+                document.getElementById('resultMessage').textContent = '💪 Keep practicing! You can do better!';
+            }
+
+            document.getElementById('modalCorrect').textContent = stats.correct;
+            document.getElementById('modalWrong').textContent = stats.wrong;
+            document.getElementById('modalUnanswered').textContent = unanswered;
+
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function resetQuiz() {
+            if (confirm('Reset all answers?')) {
+                userAnswers = {};
+                stats = { correct: 0, wrong: 0, answered: 0 };
+                updateStats();
+                renderQuestions('all');
+
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector('.category-btn').classList.add('active');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        function getCategoryTitle(cat) {
+            const titles = {
+                'all': ' All Questions',
+                'DSA': '💻 Data Structures & Algorithms',
+                'Networking': '🌐 Networking',
+                'DBMS': '🗄️ Database Management',
+                'Cloud': '☁️ Cloud Computing'
+            };
+            return titles[cat] || cat;
+        }
+
+        initQuiz();
+    </script>
+</body>
+</html>
